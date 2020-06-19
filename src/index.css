@@ -1,0 +1,44 @@
+h2 {
+	font-family:'Press Start 2P';
+	font-size: 25px;
+}
+
+p {
+	font-family:'Raleway';
+	font-size:20px;
+	margin-top:30px;
+	text-align:left;
+}
+
+form {
+	display:table;
+	border-spacing:15px;
+	padding-bottom:10px;
+}
+
+label {
+	display:table-cell; 
+	padding-right:10px;
+}
+
+input { display:table-cell; }
+
+.btn {
+	border-radius:0;
+	font-family:'Press Start 2P';
+	font-size:15px;
+	background-color:#000000;
+}
+
+.navbar { background-color:#000000; }
+
+.navbar-brand {
+	font-family:'Press Start 2P';
+	font-size:30px;
+}
+
+.form-group {
+	display:table-row;
+	font-family:'Press Start 2P';
+	font-size:15px;
+}
