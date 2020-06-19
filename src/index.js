@@ -84,7 +84,6 @@ class Form extends React.Component {
 	handleClick() {
 		var newState = Object.assign({}, this.state, {generateStory:true}); 
 		this.setState(newState);
-		//event.preventDefault();
 	}
 
 	renderShowStory() {
@@ -94,7 +93,7 @@ class Form extends React.Component {
 	render() {
 		var view;
 		if (this.state.generateStory === false) {
-			// Generating html from an array is neat..
+			// Generating html from an array is neat.
 			view = (
 				<div>
 					<div class="container text-center mt-5">
@@ -116,9 +115,6 @@ class Form extends React.Component {
 	}
 }
 
-/*var story = libsstory.template1;
-var regex = /<(.*?)>/g;
-var blanks = story.match(regex);*/
 class ShowStory extends React.Component {
 
 	fillBlanks() {
