@@ -46,11 +46,10 @@ class MainView extends React.Component {
 class Form extends React.Component {
 	constructor(props) {
 		super(props);
-
+		this.fillInBlanks = [];
 		this.state = {
 			generateStory:false,
 			blanks:[], // User input for each blank (by order of appearance in story).
-			value:"",
 		}
 
 		this.handleChange = this.handleChange.bind(this);
@@ -59,13 +58,17 @@ class Form extends React.Component {
 	// Allows form to change depending on selected template, *see libsstory.json*.
 	makeForm(arr) {
 		return (
-			arr.map(str => {
+			arr.map((str, index) => {
 				var blank = str.substring(1, str.length-1)
+
+				this.fillInBlanks.push("");
+
 				return (
 					<div class="form-group">
 						<label>{ blank }</label>
 						<input type="text"
-								value={ this.state.value }
+								name={ index }
+								value={ this.fillInBlanks[index] }
 								onChange={ this.handleChange }>
 						</input>
 					</div>
@@ -75,9 +78,8 @@ class Form extends React.Component {
 	}
 
 	handleChange(event) {
-		var blankList = this.state.blanks.push(event.target.value);
-		var newState = Object.assign({}, this.state, {blanks:blankList});
-		newState = Object.assign({}, this.state, {value:event.target.value}); 
+		this.fillInBlanks[event.target.name] = event.target.value;
+		var newState = Object.assign({}, this.state, {blanks:[...this.fillInBlanks]});
 		this.setState(newState);
 	}
 
@@ -116,7 +118,6 @@ class Form extends React.Component {
 }
 
 class ShowStory extends React.Component {
-
 	fillBlanks() {
 		var story = libsstory.template1;
 		var regex = /<(.*?)>/g;
@@ -125,8 +126,10 @@ class ShowStory extends React.Component {
 		for (let i = 0; i < blanks.length; i++) {
 			story = story.replace(blanks[i], this.props.value[i]);
 		}
+
 		return story;
 	}
+	
 	render() {
 		return (
 			<div>
