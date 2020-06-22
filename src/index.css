@@ -37,8 +37,26 @@ input { display:table-cell; }
 	font-size:30px;
 }
 
+.navbar-container {
+	padding-bottom:0px !important;
+}
+
 .form-group {
 	display:table-row;
 	font-family:'Press Start 2P';
 	font-size:15px;
+}
+
+.container {
+	padding-bottom:40px;
+}
+
+.story {
+	font-size:30px;
+}
+
+.user-input {
+	font-family:'Press Start 2P';
+	font-size:27px;
+	color:#7FFF00;
 }

@@ -61,8 +61,6 @@ class Form extends React.Component {
 			arr.map((str, index) => {
 				var blank = str.substring(1, str.length-1)
 
-				this.fillInBlanks.push("");
-
 				return (
 					<div class="form-group">
 						<label>{ blank }</label>
@@ -89,7 +87,7 @@ class Form extends React.Component {
 	}
 
 	renderShowStory() {
-		return <ShowStory value={ this.state.blanks }/>;
+		return <ShowStory value={ this.fillInBlanks }/>;//this.state.blanks }/>;
 	}
 
 	render() {
@@ -119,12 +117,27 @@ class Form extends React.Component {
 
 class ShowStory extends React.Component {
 	fillBlanks() {
-		var story = libsstory.template1;
-		var regex = /<(.*?)>/g;
-		var blanks = story.match(regex);
-		
-		for (let i = 0; i < blanks.length; i++) {
-			story = story.replace(blanks[i], this.props.value[i]);
+		var template = libsstory.template1, 
+			pattern = /<(.*?)>/g,
+			story = [],
+			startingIndex = 0, 
+			match, 
+			i = 0;
+
+		while ((match = pattern.exec(template)) !== null) {
+			let templateText = template.slice(startingIndex, match.index);
+			
+			story.push(templateText);
+			story.push(
+				<span class="user-input">{ this.props.value[i] }</span>
+			);
+
+			startingIndex = pattern.lastIndex;
+			i++;
+		}
+
+		if (pattern.lastIndex < template.length) {
+			story.push(template.slice(startingIndex));
 		}
 
 		return story;
@@ -134,7 +147,9 @@ class ShowStory extends React.Component {
 		return (
 			<div>
 				<div class="container text-center mt-4">
-					<p>{ this.fillBlanks() }</p>
+					<h2>So it begins. . .</h2>
+					<hr></hr>
+					<p class="story">{ this.fillBlanks() }</p>
 				</div>
 			</div>
 		);
