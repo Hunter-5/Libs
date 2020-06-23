@@ -8,7 +8,7 @@ import './index.css';
 class MainView extends React.Component {
 	constructor(props) {
 		super(props);
-
+		this.template = libsstory[Math.floor(Math.random() * Math.floor(3))];
 		this.state = {
 			beginGame:false,
 		}
@@ -24,7 +24,7 @@ class MainView extends React.Component {
 
 	// The form will have dynamic entries, based on the blanks provided in the template.
 	renderForm(arr) {
-		return <Form blanks={arr}/>;
+		return <Form blanks={ arr } template={ this.template }/>;
 	}
 
 	render() {
@@ -34,7 +34,7 @@ class MainView extends React.Component {
 		} else if (this.state.beginGame === true) {
 			// Find fill-in-the-blanks inside story template so we can put them in a form.
 			var regex = /<(.*?)>/g;
-			var blanks = libsstory.template1.match(regex);
+			var blanks = this.template.match(regex);
  			view = <div>{ this.renderForm(blanks) }</div>;
 		}
 
@@ -87,7 +87,7 @@ class Form extends React.Component {
 	}
 
 	renderShowStory() {
-		return <ShowStory value={ this.fillInBlanks }/>;//this.state.blanks }/>;
+		return <ShowStory value={ this.fillInBlanks } template={ this.props.template }/>;//this.state.blanks }/>;
 	}
 
 	render() {
@@ -117,7 +117,7 @@ class Form extends React.Component {
 
 class ShowStory extends React.Component {
 	fillBlanks() {
-		var template = libsstory.template1, 
+		var template = this.props.template, 
 			pattern = /<(.*?)>/g,
 			story = [],
 			startingIndex = 0, 
