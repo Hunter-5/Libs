@@ -3,71 +3,147 @@ import ReactDOM from 'react-dom';
 import libsstory from './data/libsstory.json';
 import './index.css';
 
-// Main view is the parent of the Form and Menu view.
-// The Form handles generating the story.
-class MainView extends React.Component {
+class Libs extends React.Component {
+	renderBody() {
+		return (
+			<Body/>
+		);
+	}
+
+	render() {
+		return (
+			<div>
+			<nav class="navbar navbar-expand-lg navbar-dark text-center">
+      			<div class="navbar-container container d-flex justify-content-center">
+        			<a class="navbar-brand text-center" href="#">Happy Libs</a>
+      			</div>
+    		</nav>
+    		<div>
+    			<div class="container text-center mt-4">
+    				{ this.renderBody() }
+    			</div>
+    		</div>
+    		</div>
+    	);
+	}
+}
+
+class Body extends React.Component {
 	constructor(props) {
 		super(props);
-		this.template = libsstory[Math.floor(Math.random() * Math.floor(3))];
+
 		this.state = {
 			beginGame:false,
 		}
 	}
 
 	handleBeginButton() {
-		this.setState({beginGame:true});
+		this.setState({ beginGame:true });
 	}
 
 	renderMenu() {
-		return <Menu onClick={() => this.handleBeginButton()}/>;
+		return <Menu onClick={ () => this.handleBeginButton() }/>;
 	}
 
-	// The form will have dynamic entries, based on the blanks provided in the template.
-	renderForm(arr) {
-		return <Form blanks={ arr } template={ this.template }/>;
+	renderStoryTemplate() {
+		return <StoryTemplate/>;
 	}
 
 	render() {
-		var view;
+		let view;
 		if (this.state.beginGame === false) {
 			view = <div>{ this.renderMenu() }</div>;
 		} else if (this.state.beginGame === true) {
-			// Find fill-in-the-blanks inside story template so we can put them in a form.
-			var regex = /<(.*?)>/g;
-			var blanks = this.template.match(regex);
- 			view = <div>{ this.renderForm(blanks) }</div>;
+			view = <div>{ this.renderStoryTemplate() }</div>
 		}
 
 		return view;
 	}
 }
 
-// Requests user to fill in template. Parent of ShowStory view.
-class Form extends React.Component {
+class StoryTemplate extends React.Component {
 	constructor(props) {
 		super(props);
-		this.fillInBlanks = [];
+
+		this.numberOfStories = 3;
+		this.template = libsstory[Math.floor(Math.random() * Math.floor(this.numberOfStories))];
+		this.pattern = /<(.*?)>/g;
+		this.fillInBlanksInputs = [];
+
 		this.state = {
 			generateStory:false,
-			blanks:[], // User input for each blank (by order of appearance in story).
 		}
 
-		this.handleChange = this.handleChange.bind(this);
+		this.handleFormSubmit = this.handleFormSubmit.bind(this);
+	}
+
+	handleFormSubmit(event, templateInputs) {
+		var newState = Object.assign({}, this.state, { generateStory:true });
+		this.fillInBlanksInputs = templateInputs;
+		this.setState(newState);
+	}
+
+	// The form will have dynamic entries, based on the blanks provided in the template.
+	renderTemplateForm() {
+		return (
+			<TemplateForm
+				template={ this.template }
+				pattern={ this.pattern }
+				userInputs={ this.fillInBlanksInputs }
+				onSubmit={ this.handleFormSubmit }/>
+		);
+	}
+
+	renderStory() {
+		return (
+			<Story
+				template={ this.template }
+				pattern={ this.pattern }
+				wordInputs={ this.fillInBlanksInputs }/>
+		);
+	}
+
+	render() {
+		let view;
+
+		if (this.state.generateStory === false) {
+ 			view = <div>{ this.renderTemplateForm() }</div>;
+ 		} else if (this.state.generateStory === true) {
+ 			view = <div><p>{ this.renderStory() }</p></div>;
+ 		}
+
+		return view;
+	}
+}
+
+// Requests user to fill in template. Parent of ShowStory view.
+class TemplateForm extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			templateInputs:[],
+		}
+
+		this.handleFormInput = this.handleFormInput.bind(this);
 	}
 
 	// Allows form to change depending on selected template, *see libsstory.json*.
-	makeForm(arr) {
+	buildForm() {
+		let fillInTheBlanks = this.props.template.match(this.props.pattern);
+
 		return (
-			arr.map((str, index) => {
-				var blank = str.substring(1, str.length-1)
+			fillInTheBlanks.map((str, index) => {
+				let blank = str.substring(1, str.length-1)
 
 				return (
 					<div class="form-group">
 						<label>{ blank }</label>
-						<input type="text"
-								name={ index }
-								value={ this.fillInBlanks[index] }
-								onChange={ this.handleChange }>
+						<input
+							type="text"
+							name={ index }
+							value={ this.state.templateInputs[index] }
+							onChange={ this.handleFormInput }>
 						</input>
 					</div>
 				);
@@ -75,50 +151,33 @@ class Form extends React.Component {
 		);
 	}
 
-	handleChange(event) {
-		this.fillInBlanks[event.target.name] = event.target.value;
-		var newState = Object.assign({}, this.state, {blanks:[...this.fillInBlanks]});
+	handleFormInput(event) {
+		let temp = this.state.templateInputs.slice();
+		temp[event.target.name] = event.target.value;
+		let newState = Object.assign({}, this.state, { templateInputs:[...temp] });
 		this.setState(newState);
-	}
-
-	handleClick() {
-		var newState = Object.assign({}, this.state, {generateStory:true}); 
-		this.setState(newState);
-	}
-
-	renderShowStory() {
-		return <ShowStory value={ this.fillInBlanks } template={ this.props.template }/>;//this.state.blanks }/>;
 	}
 
 	render() {
-		var view;
-		if (this.state.generateStory === false) {
-			// Generating html from an array is neat.
-			view = (
-				<div>
-					<div class="container text-center mt-5">
-						<form>
-							{ this.makeForm(this.props.blanks) }
-						</form>
-						<button class="btn btn-lg btn-primary btn-outline-dark text-light"
-								onClick={ () => this.handleClick() }>
-							Generate
-						</button>
-					</div>
-				</div>
-			);
-		} else if (this.state.generateStory === true) {
-			view = this.renderShowStory();
-		}
-
-		return view;
+		// Generating html from an array is neat.
+		return (
+			<div>
+			<form>
+				{ this.buildForm() }
+			</form>
+			<button class="btn btn-lg btn-primary btn-outline-dark text-light"
+					onClick={ (event) => this.props.onSubmit(event, this.state.templateInputs.slice()) }>
+				Generate
+			</button>
+			</div>
+		);
 	}
 }
 
-class ShowStory extends React.Component {
+class Story extends React.Component {
 	fillBlanks() {
-		var template = this.props.template, 
-			pattern = /<(.*?)>/g,
+		let template = this.props.template, 
+			pattern = this.props.pattern,
 			story = [],
 			startingIndex = 0, 
 			match, 
@@ -129,7 +188,7 @@ class ShowStory extends React.Component {
 			
 			story.push(templateText);
 			story.push(
-				<span class="user-input">{ this.props.value[i] }</span>
+				<span class="user-input">{ this.props.wordInputs[i] }</span>
 			);
 
 			startingIndex = pattern.lastIndex;
@@ -146,11 +205,8 @@ class ShowStory extends React.Component {
 	render() {
 		return (
 			<div>
-				<div class="container text-center mt-4">
-					<h2>So it begins. . .</h2>
-					<hr></hr>
-					<p class="story">{ this.fillBlanks() }</p>
-				</div>
+			<h2>So it begins. . .</h2>
+			<p class="story">{ this.fillBlanks() }</p>
 			</div>
 		);
 	}
@@ -159,26 +215,22 @@ class ShowStory extends React.Component {
 function Menu(props) {
 	return (
 		<div>
-		    <div class="container text-center mt-4">
-				<h2>Welcome!</h2>
-				<p>This here is my humble knock-off of 
-				Mad Libs&trade;. Happy Libs is a "phrasal
-				template word game". To play, enter 
-				words or phrases for the parts of speech 
-				or categories requested. Your answers are 
-				used to fill in a story template.</p>
-			</div>
-			<div class="container text-center mt-4">
-				<button class="btn btn-lg btn-primary btn-outline-dark text-light"
-						onClick={props.onClick}>
-					Begin!
-				</button>
-			</div>
+		<h2>Welcome!</h2>
+		<p>This here is my humble knock-off of 
+		Mad Libs&trade;. Happy Libs is a "phrasal
+		template word game". To play, enter 
+		words or phrases for the parts of speech 
+		or categories requested. Your answers are 
+		used to fill in a story template.</p>
+		<button class="btn btn-lg btn-primary btn-outline-dark text-light"
+				onClick={props.onClick}>
+			Begin!
+		</button>
 		</div>
 	);
 }
 
 ReactDOM.render(
-	<MainView />,
+	<Libs />,
 	document.getElementById('root')
 );
