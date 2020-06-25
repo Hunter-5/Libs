@@ -17,7 +17,8 @@ form {
 }
 
 label {
-	display:table-cell; 
+	display:table-cell;
+	text-align:left; 
 	padding-right:10px;
 }
 
@@ -42,10 +43,12 @@ input { display:table-cell; }
 }
 
 .form-group {
-	display:table-row;
+	display:table-row;	
 	font-family:'Press Start 2P';
 	font-size:15px;
 }
+
+.form-group:nth-child(even) { background-color:#f2f2f2 }
 
 .container {
 	padding-bottom:40px;

@@ -19,7 +19,7 @@ class Libs extends React.Component {
       			</div>
     		</nav>
     		<div>
-    			<div class="container text-center mt-4">
+    			<div class="container text-center mt-4 d-flex justify-content-center">
     				{ this.renderBody() }
     			</div>
     		</div>
@@ -51,6 +51,7 @@ class Body extends React.Component {
 
 	render() {
 		let view;
+
 		if (this.state.beginGame === false) {
 			view = <div>{ this.renderMenu() }</div>;
 		} else if (this.state.beginGame === true) {
@@ -61,11 +62,12 @@ class Body extends React.Component {
 	}
 }
 
+// Story template is the parent view for the Story and Template Form Views.
 class StoryTemplate extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.numberOfStories = 3;
+		this.numberOfStories = 6;
 		this.template = libsstory[Math.floor(Math.random() * Math.floor(this.numberOfStories))];
 		this.pattern = /<(.*?)>/g;
 		this.fillInBlanksInputs = [];
@@ -74,13 +76,17 @@ class StoryTemplate extends React.Component {
 			generateStory:false,
 		}
 
-		this.handleFormSubmit = this.handleFormSubmit.bind(this);
+		this.handleFormSubmitButton = this.handleFormSubmitButton.bind(this);
 	}
 
-	handleFormSubmit(event, templateInputs) {
-		var newState = Object.assign({}, this.state, { generateStory:true });
+	handleFormSubmitButton(event, templateInputs) {
 		this.fillInBlanksInputs = templateInputs;
-		this.setState(newState);
+		this.setState({ generateStory:true });
+	}
+
+	handleGenerateNewStoryButton() {
+		this.fillInBlanksInputs = [];
+		this.setState({ generateStory:false });
 	}
 
 	// The form will have dynamic entries, based on the blanks provided in the template.
@@ -90,7 +96,7 @@ class StoryTemplate extends React.Component {
 				template={ this.template }
 				pattern={ this.pattern }
 				userInputs={ this.fillInBlanksInputs }
-				onSubmit={ this.handleFormSubmit }/>
+				onSubmit={ this.handleFormSubmitButton }/>
 		);
 	}
 
@@ -99,7 +105,8 @@ class StoryTemplate extends React.Component {
 			<Story
 				template={ this.template }
 				pattern={ this.pattern }
-				wordInputs={ this.fillInBlanksInputs }/>
+				wordInputs={ this.fillInBlanksInputs }
+				onClick={ this.handleGenerateNewStoryButton }/>
 		);
 	}
 
@@ -116,7 +123,6 @@ class StoryTemplate extends React.Component {
 	}
 }
 
-// Requests user to fill in template. Parent of ShowStory view.
 class TemplateForm extends React.Component {
 	constructor(props) {
 		super(props);
@@ -179,11 +185,9 @@ class Story extends React.Component {
 		let template = this.props.template, 
 			pattern = this.props.pattern,
 			story = [],
-			startingIndex = 0, 
-			match, 
-			i = 0;
+			startingIndex = 0;
 
-		while ((match = pattern.exec(template)) !== null) {
+		for (let i = 0, match = pattern.exec(template); match !== null; i++) {
 			let templateText = template.slice(startingIndex, match.index);
 			
 			story.push(templateText);
@@ -192,7 +196,7 @@ class Story extends React.Component {
 			);
 
 			startingIndex = pattern.lastIndex;
-			i++;
+			match = pattern.exec(template);
 		}
 
 		if (pattern.lastIndex < template.length) {
@@ -207,6 +211,10 @@ class Story extends React.Component {
 			<div>
 			<h2>So it begins. . .</h2>
 			<p class="story">{ this.fillBlanks() }</p>
+			<button class="btn btn-lg btn-primary btn-outline-dark text-light"
+					onClick={ this.props.onClick }>
+				New Story
+			</button>			
 			</div>
 		);
 	}
@@ -222,8 +230,9 @@ function Menu(props) {
 		words or phrases for the parts of speech 
 		or categories requested. Your answers are 
 		used to fill in a story template.</p>
-		<button class="btn btn-lg btn-primary btn-outline-dark text-light"
-				onClick={props.onClick}>
+		<button
+			class="btn btn-lg btn-primary btn-outline-dark text-light"
+			onClick={ props.onClick }>
 			Begin!
 		</button>
 		</div>
