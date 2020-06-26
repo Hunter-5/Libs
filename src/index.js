@@ -76,17 +76,27 @@ class StoryTemplate extends React.Component {
 			generateStory:false,
 		}
 
-		this.handleFormSubmitButton = this.handleFormSubmitButton.bind(this);
+		this.storeFormInputValues = this.storeFormInputValues.bind(this);
+		this.handleNewStoryButton = this.handleNewStoryButton.bind(this);
 	}
 
-	handleFormSubmitButton(event, templateInputs) {
-		this.fillInBlanksInputs = templateInputs;
-		this.setState({ generateStory:true });
-	}
-
-	handleGenerateNewStoryButton() {
+	// Empty stored user inputs, then select new random, non-repeating template.
+	handleNewStoryButton() {
 		this.fillInBlanksInputs = [];
+
+		let rand = Math.floor(Math.random() * Math.floor(this.numberOfStories));
+		while (libsstory[rand] === this.template) {
+			rand = Math.floor(Math.random() * Math.floor(this.numberOfStories));
+		}
+		this.template = libsstory[rand];
+
 		this.setState({ generateStory:false });
+	}
+
+	// Store inputs for story view, then transition to story view.
+	storeFormInputValues(formInputs) {
+		this.fillInBlanksInputs = formInputs.slice();
+		this.setState({ generateStory:true });
 	}
 
 	// The form will have dynamic entries, based on the blanks provided in the template.
@@ -96,7 +106,8 @@ class StoryTemplate extends React.Component {
 				template={ this.template }
 				pattern={ this.pattern }
 				userInputs={ this.fillInBlanksInputs }
-				onSubmit={ this.handleFormSubmitButton }/>
+				onSubmit={ this.handleFormSubmitButton }
+				returnInputValues={ this.storeFormInputValues }/>
 		);
 	}
 
@@ -106,7 +117,7 @@ class StoryTemplate extends React.Component {
 				template={ this.template }
 				pattern={ this.pattern }
 				wordInputs={ this.fillInBlanksInputs }
-				onClick={ this.handleGenerateNewStoryButton }/>
+				onClick={ this.handleNewStoryButton }/>
 		);
 	}
 
@@ -116,7 +127,7 @@ class StoryTemplate extends React.Component {
 		if (this.state.generateStory === false) {
  			view = <div>{ this.renderTemplateForm() }</div>;
  		} else if (this.state.generateStory === true) {
- 			view = <div><p>{ this.renderStory() }</p></div>;
+ 			view = <div>{ this.renderStory() }</div>;
  		}
 
 		return view;
@@ -132,6 +143,7 @@ class TemplateForm extends React.Component {
 		}
 
 		this.handleFormInput = this.handleFormInput.bind(this);
+		this.handleFormSubmitButton = this.handleFormSubmitButton.bind(this);
 	}
 
 	// Allows form to change depending on selected template, *see libsstory.json*.
@@ -164,15 +176,22 @@ class TemplateForm extends React.Component {
 		this.setState(newState);
 	}
 
+	// Stores return values to be sent to story view, then clear form values to keep
+	// the next template from displaying them.
+	handleFormSubmitButton() {
+		let ret = this.state.templateInputs.slice();
+		this.setState({ templateInputs:[] });
+		this.props.returnInputValues(ret);
+	}
+
 	render() {
-		// Generating html from an array is neat.
 		return (
 			<div>
 			<form>
 				{ this.buildForm() }
 			</form>
 			<button class="btn btn-lg btn-primary btn-outline-dark text-light"
-					onClick={ (event) => this.props.onSubmit(event, this.state.templateInputs.slice()) }>
+					onClick={ this.handleFormSubmitButton }>
 				Generate
 			</button>
 			</div>
