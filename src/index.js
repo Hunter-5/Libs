@@ -10,12 +10,17 @@ class Libs extends React.Component {
 		);
 	}
 
+	handleHomeButton() {
+		window.location.reload();
+	}
+
 	render() {
+		// Note: Using navbar-brand as a button doesn't seem right...
 		return (
 			<div>
 			<nav class="navbar navbar-expand-lg navbar-dark text-center">
       			<div class="navbar-container container d-flex justify-content-center">
-        			<a class="navbar-brand text-center" href="#">Happy Libs</a>
+        			<a class="navbar-brand text-center" href="#" onClick={ () => this.handleHomeButton() }>Happy Libs</a>
       			</div>
     		</nav>
     		<div>
