@@ -1,7 +1,9 @@
-# libs
+## libs
 
-Description:	Simple Mad Libs knockoff - (for learning React)
+#### Description:
+Simple Mad Libs knockoff - (for learning React)
 
-Running:	Make sure you have the latest version of npm installed.
-		cd into the libs folder and run: $ npm start
+#### Running:
+cd into project root and run: **npm install** to install dependencies.
+To run, use: **npm start**
 	
