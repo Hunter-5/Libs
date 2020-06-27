@@ -143,8 +143,18 @@ class TemplateForm extends React.Component {
 	constructor(props) {
 		super(props);
 
+		let emptyArr;
+
+		this.fillInTheBlanks = this.props.template.match(this.props.pattern);
+
+		// Prior to rendering form, we need to initialize the default input values for the form.		
+		emptyArr = new Array(this.fillInTheBlanks.length);
+		for (let i = 0; i < emptyArr.length; i++) {
+			emptyArr[i] = "";
+		}
+
 		this.state = {
-			templateInputs:[],
+			templateInputs:emptyArr,
 		}
 
 		this.handleFormInput = this.handleFormInput.bind(this);
@@ -153,10 +163,8 @@ class TemplateForm extends React.Component {
 
 	// Allows form to change depending on selected template, *see libsstory.json*.
 	buildForm() {
-		let fillInTheBlanks = this.props.template.match(this.props.pattern);
-
 		return (
-			fillInTheBlanks.map((str, index) => {
+			this.fillInTheBlanks.map((str, index) => {
 				let blank = str.substring(1, str.length-1)
 
 				return (
@@ -185,6 +193,14 @@ class TemplateForm extends React.Component {
 	// the next template from displaying them.
 	handleFormSubmitButton() {
 		let ret = this.state.templateInputs.slice();
+
+		for (let i = 0; i < ret.length; i++) {
+			if (ret[i] === "") {
+				alert("Please fill out all fields.");
+				return;
+			}
+		}
+
 		this.setState({ templateInputs:[] });
 		this.props.returnInputValues(ret);
 	}
